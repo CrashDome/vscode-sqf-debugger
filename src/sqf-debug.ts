@@ -13,10 +13,17 @@ import { ArmaDebugEngine, ICallStackItem, IVariable, VariableScope, IValue, Cont
 import { trueCasePathSync } from 'true-case-path';
 import { Message } from 'vscode-debugadapter/lib/messages';
 
+interface IPathConverter {
+	[from : string] : string;
+}
+
 export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	//rptPath?: string
+	//For backwards compat
 	missionRoot?: string,
-	scriptPrefix?: string
+	scriptPrefix?: string,
+	//New
+	pathConverters?: IPathConverter;
 }
 
 interface ICachedVariable {
@@ -62,6 +69,7 @@ export class SQFDebugSession extends DebugSession {
 
 	private missionRoot: string = '';
 	private scriptPrefix: string = '';
+	private converters: Map<string, string> = new Map();
 
 	private variables: ICachedVariable[] = [];
 	private sourceIndex: ISource[] = [];
@@ -185,9 +193,14 @@ export class SQFDebugSession extends DebugSession {
 	protected launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): void {
 		this.log(`Launching`);
 
+		//for backwards compat
 		this.missionRoot = args.missionRoot?.toLowerCase() || "";
 		this.scriptPrefix = args.scriptPrefix?.toLowerCase() || "";
-
+		//New
+		for ( var key in args.pathConverters) {
+			this.converters.set(key.toLowerCase(),args.pathConverters[key].toLowerCase());
+		}
+		
 		this.sendResponse(response);
 
 		this.sendEvent(new InitializedEvent());
@@ -787,6 +800,12 @@ export class SQFDebugSession extends DebugSession {
 
 	protected convertClientPathToDebugger(clientPath: string): string {
 		let path = clientPath.toLowerCase();
+		if (this.converters) {
+			this.converters.forEach( (value,key) => {path = path.replace(key,value)});
+			return path;
+		}
+		
+		// for backward compat
 		if (path.startsWith(this.missionRoot)) {
 			path = path.substr(this.missionRoot.length);
 		}
@@ -795,6 +814,12 @@ export class SQFDebugSession extends DebugSession {
 
 	protected convertDebuggerPathToClient(debuggerPath: string): string {
 		let sourceFile = debuggerPath.toLowerCase();
+		if (this.converters) {
+			this.converters.forEach( (value,key) => {sourceFile = sourceFile.replace(value,key)});
+			return trueCasePathSync(sourceFile);
+		}
+
+		// for backward compat
 		if (sourceFile.startsWith(this.scriptPrefix)) {
 			sourceFile = this.missionRoot + sourceFile.substr(this.scriptPrefix.length);
 		}

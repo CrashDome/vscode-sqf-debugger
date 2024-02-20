@@ -73,8 +73,7 @@
 				"configurationAttributes": {
 					"launch": {
 						"required": [
-							"missionRoot",
-							"scriptPrefix"
+							"pathConverters"
 						],
 						"properties": {
 							"missionRoot": {
@@ -86,6 +85,11 @@
 								"type": "string",
 								"default": "${workspaceFolder}",
 								"description": "Ingame script prefix"
+							},
+							"pathConverters": {
+								"type": "object",
+								"default": {},
+								"description": ""
 							}
 						}
 					}
@@ -95,8 +99,7 @@
 						"name": "connect",
 						"type": "sqf",
 						"request": "launch",
-						"missionRoot": "${workspaceFolder}",
-						"scriptPrefix": "${workspaceFolder}"
+						"pathConverters": {}
 					}
 				]
 			}
@@ -111,26 +114,26 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"dependencies": {
-		"await-notify": "1.0.1",
-		"vscode-debugadapter": "1.38.0",
 		"@types/vscode": "^1.42.0",
-		"true-case-path": "^2.2.1",
+		"@types/ws": "^7.2.1",
+		"await-notify": "1.0.1",
 		"bufferutil": "^4.0.1",
+		"true-case-path": "^2.2.1",
 		"utf-8-validate": "^5.0.2",
-		"ws": "^7.2.1",
-		"@types/ws": "^7.2.1"
+		"vscode-debugadapter": "1.38.0",
+		"ws": "^7.2.1"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.1",
 		"@types/mocha": "^7.0.1",
 		"@types/node": "^12.11.7",
-		"eslint": "^6.8.0",
-		"@typescript-eslint/parser": "^2.18.0",
 		"@typescript-eslint/eslint-plugin": "^2.18.0",
+		"@typescript-eslint/parser": "^2.18.0",
+		"eslint": "^6.8.0",
 		"glob": "^7.1.6",
 		"mocha": "^7.0.1",
-		"typescript": "^3.7.5",
-		"vscode-test": "^1.3.0",
-		"vscode-debugadapter-testsupport": "1.40.1"
+		"typescript": "^3.9.10",
+		"vscode-debugadapter-testsupport": "1.40.1",
+		"vscode-test": "^1.3.0"
 	}
 }
